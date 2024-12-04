@@ -45,7 +45,7 @@ function insertHelloWorld(event: Office.AddinCommands.Event): void {
       }
   );
 
-  // Signaler que l'action est terminée
+  //l'action est terminée
   event.completed();
 }
 
