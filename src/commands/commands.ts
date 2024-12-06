@@ -33,21 +33,95 @@ Office.actions.associate("action", action);
 
 function insertHelloWorld(event: Office.AddinCommands.Event): void {
   // Ajoute "Hello World" dans le corps du rendez-vous
-  Office.context.mailbox.item.body.setAsync(
-      "Hello World",
-      { coercionType: Office.CoercionType.Text },
-      (result) => {
-          if (result.status === Office.AsyncResultStatus.Succeeded) {
-              console.log("Texte ajouté avec succès !");
-          } else {
-              console.error("Erreur lors de l'ajout du texte : ", result.error);
-          }
-      }
-  );
+  Office.context.mailbox.item.body.setAsync("Hello World", { coercionType: Office.CoercionType.Text }, (result) => {
+    if (result.status === Office.AsyncResultStatus.Succeeded) {
+      console.log("Texte ajouté avec succès !");
+    } else {
+      console.error("Erreur lors de l'ajout du texte : ", result.error);
+    }
+  });
 
   //l'action est terminée
   event.completed();
 }
 
-Office.actions.associate("insertHelloWorld", insertHelloWorld);
+function generateMeeting(event: Office.AddinCommands.Event): void {
+  // Contenu simulé d'une réunion Microsoft Teams
+  const meetingDetailsHtml = `
+      <hr style="border: 1px solid #ccc; margin-top: 20px;">
+        <footer style="background-color: #f9f9f9; border-top: 1px solid #ccc; padding: 20px;">
 
+      <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">
+        <strong>Joona By Apitech</strong> <a href="#">Besoin d'aide ?</a><br>
+        <a style="cursor: pointer" href="https://joona.fr/WormsInvestigateSmoothly">Rejoignez la réunion maintenant</a><br>
+        <span>Rejoindre Par téléphone  : 310 823 625 87</span><br>
+        <span>Code secret : bD79Ts2L</span><br>
+        <span>Pour les organisateurs : <a href="#">Options de réunion</a></span>
+      </div>
+    </footer>
+      <hr style="border: 1px solid #ccc; margin-top: 20px;">
+    `;
+
+  // Insérer le contenu dans le corps de l'événement
+  Office.context.mailbox.item.body.setAsync(
+    meetingDetailsHtml,
+    { coercionType: Office.CoercionType.Html },
+    (result) => {
+      if (result.status === Office.AsyncResultStatus.Succeeded) {
+        console.log("Détails de la réunion ajoutés avec succès !");
+      } else {
+        console.error("Erreur lors de l'ajout des détails de la réunion :", result.error);
+      }
+    }
+  );
+
+  // Action terminée
+  event.completed();
+}
+
+function generateMeetingV2(event: Office.AddinCommands.Event): void {
+  const meetingDetailsHtml = `
+    <hr style="border: 1px solid #ccc; margin-top: 20px;">
+     
+
+    <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">
+      <strong>Joona By Apitech</strong> <a href="#">Besoin d'aide ?</a><br>
+      <a href="https://joona.fr/WormsInvestigateSmoothly">Rejoignez la réunion maintenant</a><br>
+      <span>Rejoindre Par telephone : 310 823 625 87</span><br>
+      <span>Code secret : bD79Ts2L</span><br>
+      <span>Pour les organisateurs : <a href="#">Options de réunion</a></span>
+    </div>
+ 
+    <hr style="border: 1px solid #ccc; margin-top: 20px;">
+  `;
+
+  Office.context.mailbox.item.body.getAsync(Office.CoercionType.Html, (result) => {
+    if (result.status === Office.AsyncResultStatus.Succeeded) {
+      const currentBody = result.value || ""; // Récupérer le contenu actuel ou une chaîne vide s'il n'y a rien
+
+      const updatedBody = currentBody + meetingDetailsHtml;
+
+      Office.context.mailbox.item.body.setAsync(
+        updatedBody,
+        { coercionType: Office.CoercionType.Html },
+        (setResult) => {
+          if (setResult.status === Office.AsyncResultStatus.Succeeded) {
+            console.log("Détails de la réunion ajoutés avec succès !");
+          } else {
+            console.error("Erreur lors de l'ajout des détails de la réunion :", setResult.error);
+          }
+        }
+      );
+    } else {
+      console.error("Erreur lors de la récupération du contenu actuel :", result.error);
+    }
+  });
+
+  // Action terminée
+  event.completed();
+}
+
+// Associer la commande à votre bouton dans l'add-in
+Office.actions.associate("generateMeeting", generateMeeting);
+
+Office.actions.associate("insertHelloWorld", insertHelloWorld);
