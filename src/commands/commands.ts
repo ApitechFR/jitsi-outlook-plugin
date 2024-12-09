@@ -2,7 +2,7 @@
  * Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
  * See LICENSE in the project root for license information.
  */
-
+import { generateRoomName } from "../helpers/roomNameGenerator";
 /* global Office */
 
 Office.onReady(() => {
@@ -45,55 +45,28 @@ function insertHelloWorld(event: Office.AddinCommands.Event): void {
   event.completed();
 }
 
+/**
+ * Génère un nom de salle aléatoire et ajoute les détails de la réunion dans le corps de l'e-mail.
+ * @param event
+ */
 function generateMeeting(event: Office.AddinCommands.Event): void {
-  // Contenu simulé d'une réunion Microsoft Teams
+  const roomName = generateRoomName();
   const meetingDetailsHtml = `
-      <hr style="border: 1px solid #ccc; margin-top: 20px;">
-        <footer style="background-color: #f9f9f9; border-top: 1px solid #ccc; padding: 20px;">
-
-      <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">
-        <strong>Joona By Apitech</strong> <a href="#">Besoin d'aide ?</a><br>
-        <a style="cursor: pointer" href="https://joona.fr/WormsInvestigateSmoothly">Rejoignez la réunion maintenant</a><br>
-        <span>Rejoindre Par téléphone  : 310 823 625 87</span><br>
-        <span>Code secret : bD79Ts2L</span><br>
-        <span>Pour les organisateurs : <a href="#">Options de réunion</a></span>
-      </div>
-    </footer>
-      <hr style="border: 1px solid #ccc; margin-top: 20px;">
-    `;
-
-  // Insérer le contenu dans le corps de l'événement
-  Office.context.mailbox.item.body.setAsync(
-    meetingDetailsHtml,
-    { coercionType: Office.CoercionType.Html },
-    (result) => {
-      if (result.status === Office.AsyncResultStatus.Succeeded) {
-        console.log("Détails de la réunion ajoutés avec succès !");
-      } else {
-        console.error("Erreur lors de l'ajout des détails de la réunion :", result.error);
-      }
-    }
-  );
-
-  // Action terminée
-  event.completed();
-}
-
-function generateMeetingV2(event: Office.AddinCommands.Event): void {
-  const meetingDetailsHtml = `
-    <hr style="border: 1px solid #ccc; margin-top: 20px;">
-     
-
-    <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">
-      <strong>Joona By Apitech</strong> <a href="#">Besoin d'aide ?</a><br>
-      <a href="https://joona.fr/WormsInvestigateSmoothly">Rejoignez la réunion maintenant</a><br>
-      <span>Rejoindre Par telephone : 310 823 625 87</span><br>
-      <span>Code secret : bD79Ts2L</span><br>
-      <span>Pour les organisateurs : <a href="#">Options de réunion</a></span>
-    </div>
- 
-    <hr style="border: 1px solid #ccc; margin-top: 20px;">
-  `;
+          <hr style="border: 1px solid #ccc; margin-top: 20px;">
+          
+          <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">
+              <strong>Joona By Apitech</strong> <a href="#">Besoin d'aide ?</a><br>
+              <div style="margin-bottom:6px">
+              <a style="font-size:20px; font-weight:600; text-decoration:underline; color:#5B5FC7; cursor:pointer " data-auth="NotApplicable" rel="noreferrer noopener" href="https://joona.fr/${roomName}" target="_blank">
+              Rejoignez la réunion maintenant</a><br>
+              </div>
+              <span>Rejoindre Par téléphone : 310 823 625 87</span><br>
+              <span>Code secret : bD79Ts2L</span><br>
+              <span>Pour les organisateurs : <a href="#" target="_blank">Options de réunion</a></span>
+          </div>
+          
+          <hr style="border: 1px solid #ccc; margin-top: 20px;">
+      `;
 
   Office.context.mailbox.item.body.getAsync(Office.CoercionType.Html, (result) => {
     if (result.status === Office.AsyncResultStatus.Succeeded) {
@@ -110,16 +83,17 @@ function generateMeetingV2(event: Office.AddinCommands.Event): void {
           } else {
             console.error("Erreur lors de l'ajout des détails de la réunion :", setResult.error);
           }
+          event.completed();
         }
       );
     } else {
       console.error("Erreur lors de la récupération du contenu actuel :", result.error);
+      event.completed();
     }
   });
-
-  // Action terminée
-  event.completed();
 }
+
+//genere une signature de réunion dans l'appointment body
 
 // Associer la commande à votre bouton dans l'add-in
 Office.actions.associate("generateMeeting", generateMeeting);
