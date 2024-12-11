@@ -112,16 +112,21 @@ async function generateMeeting(event) {
   const meetingDetailsHtml = `
     <hr style="border: 1px solid #ccc; margin-top: 20px;">
     <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">
-        <strong>Joona By Apitech</strong> <a href="#">Besoin d'aide ?</a><br>
+        <strong>Joona By Apitech</strong><br>
         <div style="margin-bottom:6px">
         <a style="font-size:20px; font-weight:600; text-decoration:underline; color:#5B5FC7; cursor:pointer "
           data-auth="NotApplicable" rel="noreferrer noopener" href="https://${configs.JITSI_DOMAIN}/${roomName}"
           target="_blank">
           Rejoignez la réunion maintenant</a><br>
         </div>
-        ${phoneNumbers.length > 0 ? `<span>Rejoindre Par téléphone : ${phoneNumbers.join(", ")}</span><br>` : ""}
+        ${phoneNumbers.length > 0 ? `<span>Rejoindre par téléphone : ${phoneNumbers.join(", ")}</span><br>` : ""}
         ${pinCode ? `<span>Code secret : ${pinCode}</span><br>` : ""}
-        <span>Pour les organisateurs : <a href="#" target="_blank">Options de réunion</a></span>
+        
+        ${
+          configs.MODERATOR_OPTIONS
+            ? `<span>Pour les organisateurs : <a href="#" target="_blank">Options de réunion</a></span>`
+            : ""
+        }
     </div>
     <hr style="border: 1px solid #ccc; margin-top: 20px;">
   `;
