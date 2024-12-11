@@ -1,14 +1,27 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
- * See LICENSE in the project root for license information.
- */
+import { configs } from "../../configs";
 import { generateRoomName } from "../helpers/roomNameGenerator";
+import axios from "axios";
+
 /* global Office */
 
 Office.onReady(() => {
   // If needed, Office.js is ready to be called.
 });
 
+/**
+ * Fonction utilitaire pour effectuer une requête HTTP et renvoyer la réponse.
+ * @param {string} url - URL à interroger.
+ * @returns {Promise<string|null>} - Réponse sous forme de texte ou null en cas d'échec.
+ */
+async function load(url) {
+  try {
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de la requête :", error);
+    return null;
+  }
+}
 /**
  * Shows a notification when the add-in command is executed.
  * @param event
@@ -44,34 +57,78 @@ function insertHelloWorld(event: Office.AddinCommands.Event): void {
   //l'action est terminée
   event.completed();
 }
+Office.actions.associate("insertHelloWorld", insertHelloWorld);
 
 /**
- * Génère un nom de salle aléatoire et ajoute les détails de la réunion dans le corps de l'e-mail.
- * @param event
+ * Récupère les numéros de téléphone et le code PIN pour la conférence.
+ * @param {string} roomName - Nom de la salle.
+ * @returns {Promise<object>} - Contient les numéros de téléphone et le code PIN.
  */
-function generateMeeting(event: Office.AddinCommands.Event): void {
+async function getPhoneDetails(roomName) {
+  const phoneNumbers = [];
+  let pinCode = "";
+
+  if (configs.ENABLE_PHONE_ACCESS) {
+    try {
+      const phoneResult = await load(
+        `${configs.dialInNumbersUrl}?conference=${roomName}@conference.${configs.JITSI_DOMAIN}`
+      );
+      if (phoneResult && phoneResult.numbers) {
+        Object.keys(phoneResult.numbers).forEach((key) => {
+          phoneResult.numbers[key].forEach((number) => {
+            phoneNumbers.push(
+              configs.PHONE_NUMBER_FORMAT.replace("%phone_number%", number).replace("%phone_country%", key)
+            );
+          });
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la récupération des numéros de téléphone :", error);
+    }
+
+    try {
+      const pinResult = await load(
+        `${configs.dialInConfCodeUrl}?conference=${roomName}@conference.${configs.JITSI_DOMAIN}`
+      );
+      if (pinResult && pinResult.id) {
+        pinCode = pinResult.id;
+      }
+    } catch (error) {
+      console.error("Erreur lors de la récupération du code PIN :", error);
+    }
+  }
+
+  return { phoneNumbers, pinCode };
+}
+
+/**
+ * Génère les détails de la réunion et les ajoute au corps de l'invitation.
+ * @param {Office.AddinCommands.Event} event - Événement de la commande Office.
+ */
+async function generateMeeting(event) {
   const roomName = generateRoomName();
+  const { phoneNumbers, pinCode } = await getPhoneDetails(roomName);
+
   const meetingDetailsHtml = `
-          <hr style="border: 1px solid #ccc; margin-top: 20px;">
-          
-          <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">
-              <strong>Joona By Apitech</strong> <a href="#">Besoin d'aide ?</a><br>
-              <div style="margin-bottom:6px">
-              <a style="font-size:20px; font-weight:600; text-decoration:underline; color:#5B5FC7; cursor:pointer " data-auth="NotApplicable" rel="noreferrer noopener" href="https://joona.fr/${roomName}" target="_blank">
-              Rejoignez la réunion maintenant</a><br>
-              </div>
-              <span>Rejoindre Par téléphone : 310 823 625 87</span><br>
-              <span>Code secret : bD79Ts2L</span><br>
-              <span>Pour les organisateurs : <a href="#" target="_blank">Options de réunion</a></span>
-          </div>
-          
-          <hr style="border: 1px solid #ccc; margin-top: 20px;">
-      `;
+    <hr style="border: 1px solid #ccc; margin-top: 20px;">
+    <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">
+        <strong>Joona By Apitech</strong> <a href="#">Besoin d'aide ?</a><br>
+        <div style="margin-bottom:6px">
+        <a style="font-size:20px; font-weight:600; text-decoration:underline; color:#5B5FC7; cursor:pointer "
+          data-auth="NotApplicable" rel="noreferrer noopener" href="https://${configs.JITSI_DOMAIN}/${roomName}"
+          target="_blank">
+          Rejoignez la réunion maintenant</a><br>
+        </div>
+        ${phoneNumbers.length > 0 ? `<span>Rejoindre Par téléphone : ${phoneNumbers.join(", ")}</span><br>` : ""}
+        ${pinCode ? `<span>Code secret : ${pinCode}</span><br>` : ""}
+        <span>Pour les organisateurs : <a href="#" target="_blank">Options de réunion</a></span>
+    </div>
+    <hr style="border: 1px solid #ccc; margin-top: 20px;">
+  `;
 
   Office.context.mailbox.item.body.getAsync(Office.CoercionType.Html, (result) => {
     if (result.status === Office.AsyncResultStatus.Succeeded) {
-      const currentBody = result.value || ""; // Récupérer le contenu actuel ou une chaîne vide s'il n'y a rien
-
+      const currentBody = result.value || "";
       const updatedBody = currentBody + meetingDetailsHtml;
 
       Office.context.mailbox.item.body.setAsync(
@@ -93,9 +150,5 @@ function generateMeeting(event: Office.AddinCommands.Event): void {
   });
 }
 
-//genere une signature de réunion dans l'appointment body
-
 // Associer la commande à votre bouton dans l'add-in
 Office.actions.associate("generateMeeting", generateMeeting);
-
-Office.actions.associate("insertHelloWorld", insertHelloWorld);
