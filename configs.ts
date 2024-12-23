@@ -1,8 +1,10 @@
+import vars from "./vars.json";
+
 export const configs = {
-  dialInNumbersUrl: "https://api.voxify.joona.fr/api/v1/conn/jitsi/phoneNumbers",
-  dialInConfCodeUrl: "https://api.voxify.joona.fr/api/v1/conn/jitsi/conference/code",
-  ENABLE_PHONE_ACCESS: true,
-  JITSI_DOMAIN: "joona.fr",
-  PHONE_NUMBER_FORMAT: "%phone_number%",
-  MODERATOR_OPTIONS: false,
+  dialInNumbersUrl: vars.DIALINNUMBER_URL,
+  dialInConfCodeUrl: vars.DIALINCONFCODE_URL,
+  ENABLE_PHONE_ACCESS: vars.ENABLE_PHONE_ACCESS,
+  JITSI_DOMAIN: vars.JITSI_DOMAIN,
+  PHONE_NUMBER_FORMAT: vars.PHONE_NUMBER_FORMAT,
+  MODERATOR_OPTIONS: vars.ENABLE_MODERATOR_OPTIONS,
 };
