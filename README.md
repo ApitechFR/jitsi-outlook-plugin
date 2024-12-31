@@ -33,7 +33,7 @@ Si vous êtes administrateur Outlook sur un serveur Exchange. Il est recommandé
 - Créez un nouvel événement dans votre agenda
 - Dans la page de création de l'événement, cliquez sur le bouton "Joona Meet"
 - Votre invitation devrait ressembler à la capture d'écran ci-dessous : 
-<img src="./readme_resources/images/new_event.png" alt= "Générer une invitation joona" width="50%" height="50%">
+<img src="./readme_resources/images/new_event.png" alt= "Générer une invitation joona">
 
 # Supprimer l'Add-in
 
