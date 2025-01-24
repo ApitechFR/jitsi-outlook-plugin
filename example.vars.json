@@ -4,5 +4,6 @@
   "ENABLED_PHONE_ACCESS": "true",
   "JITSI_DOMAIN": "example.com",
   "PHONE_NUMBER_FORMAT": "%phone_number%",
-  "ENABLE_MODERATOR_OPTIONS": "false"
+  "ENABLE_MODERATOR_OPTIONS": "false",
+  "TITLE_MEETING_DETAILS": "Exemple_test"
 }
