@@ -44,21 +44,6 @@ function action(event: Office.AddinCommands.Event) {
 // Register the function with Office.
 Office.actions.associate("action", action);
 
-function insertHelloWorld(event: Office.AddinCommands.Event): void {
-  // Ajoute "Hello World" dans le corps du rendez-vous
-  Office.context.mailbox.item.body.setAsync("Hello World", { coercionType: Office.CoercionType.Text }, (result) => {
-    if (result.status === Office.AsyncResultStatus.Succeeded) {
-      console.log("Texte ajouté avec succès !");
-    } else {
-      console.error("Erreur lors de l'ajout du texte : ", result.error);
-    }
-  });
-
-  //l'action est terminée
-  event.completed();
-}
-Office.actions.associate("insertHelloWorld", insertHelloWorld);
-
 /**
  * Récupère les numéros de téléphone et le code PIN pour la conférence.
  * @param {string} roomName - Nom de la salle.
@@ -109,10 +94,11 @@ async function generateMeeting(event) {
   const roomName = generateRoomName();
   const { phoneNumbers, pinCode } = await getPhoneDetails(roomName);
 
+  const meetingIdentifier = "joona-meeting-details";
   const meetingDetailsHtml = `
     <hr style="border: 1px solid #ccc; margin-top: 20px;">
-    <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">
-        <strong>Joona By Apitech</strong><br>
+    <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;" id="${meetingIdentifier}">
+        <strong>${configs.TITLE_MEETING_DETAILS}</strong><br>
         <div style="margin-bottom:6px">
         <a style="font-size:20px; font-weight:600; text-decoration:underline; color:#5B5FC7; cursor:pointer "
           data-auth="NotApplicable" rel="noreferrer noopener" href="https://${configs.JITSI_DOMAIN}/${roomName}"
@@ -123,7 +109,7 @@ async function generateMeeting(event) {
         ${pinCode ? `<span>Code secret : ${pinCode}</span><br>` : ""}
         
         ${
-          configs.MODERATOR_OPTIONS
+          configs.MODERATOR_OPTIONS == "true"
             ? `<span>Pour les organisateurs : <a href="#" target="_blank">Options de réunion</a></span>`
             : ""
         }
@@ -134,20 +120,41 @@ async function generateMeeting(event) {
   Office.context.mailbox.item.body.getAsync(Office.CoercionType.Html, (result) => {
     if (result.status === Office.AsyncResultStatus.Succeeded) {
       const currentBody = result.value || "";
-      const updatedBody = currentBody + meetingDetailsHtml;
 
-      Office.context.mailbox.item.body.setAsync(
-        updatedBody,
-        { coercionType: Office.CoercionType.Html },
-        (setResult) => {
-          if (setResult.status === Office.AsyncResultStatus.Succeeded) {
-            console.log("Détails de la réunion ajoutés avec succès !");
-          } else {
-            console.error("Erreur lors de l'ajout des détails de la réunion :", setResult.error);
+      if (!currentBody.includes(meetingIdentifier)) {
+
+        // Ajoutez `meetingDetailsHtml` seulement s'il n'est pas déjà présent
+        const updatedBody = currentBody + meetingDetailsHtml;
+
+        Office.context.mailbox.item.body.setAsync(
+          updatedBody,
+          { coercionType: Office.CoercionType.Html },
+          (setResult) => {
+            if (setResult.status === Office.AsyncResultStatus.Succeeded) {
+              console.log("Détails de la réunion ajoutés avec succès !");
+            } else {
+              console.error("Erreur lors de l'ajout des détails de la réunion :", setResult.error);
+            }
+            event.completed();
           }
+        );
+        
+        //add link in location
+        const joonaLink = "https://" + configs.JITSI_DOMAIN + "/" + roomName;
+
+        Office.context.mailbox.item.location.setAsync(joonaLink, (result) => {
+          if (result.status === Office.AsyncResultStatus.Failed) {
+              console.error("Failed to set location:", result.error.message);
+          } else {
+              console.log("Location set to HelloWork successfully!");
+          }
+
           event.completed();
-        }
-      );
+        });
+      } else {
+        console.log("Les détails de la réunion sont déjà présents dans le corps.");
+        event.completed();
+      }
     } else {
       console.error("Erreur lors de la récupération du contenu actuel :", result.error);
       event.completed();

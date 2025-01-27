@@ -62,21 +62,6 @@
                     <FunctionName>generateMeeting</FunctionName>
                   </Action>
                 </Control>
-                <Control xsi:type="Button" id="HelloWorldButton">
-                  <Label resid="HelloWorldButton.Label"/>
-                  <Supertip>
-                    <Title resid="HelloWorldButton.Label"/>
-                    <Description resid="HelloWorldButton.Tooltip"/>
-                  </Supertip>
-                  <Icon>
-                    <bt:Image size="16" resid="Icon.16x16"/>
-                    <bt:Image size="32" resid="Icon.32x32"/>
-                    <bt:Image size="80" resid="Icon.80x80"/>
-                  </Icon>
-                  <Action xsi:type="ExecuteFunction">
-                    <FunctionName>insertHelloWorld</FunctionName>
-                  </Action>
-                </Control>
               </Group>
             </OfficeTab>
           </ExtensionPoint>
@@ -96,11 +81,9 @@
       <bt:ShortStrings>
         <bt:String id="GroupLabel" DefaultValue="Contoso Add-in"/>
         <bt:String id="generateMeeting.Label" DefaultValue="Réunion Joona"/>
-        <bt:String id="HelloWorldButton.Label" DefaultValue="Test action"/>
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="generateMeeting.Tooltip" DefaultValue="Opens a pane displaying all available properties."/>
-        <bt:String id="HelloWorldButton.Tooltip" DefaultValue="Perform an action when clicked."/>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>
