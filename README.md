@@ -1,7 +1,7 @@
 # Joona-outlook
 
 # Description
-**Joona Meet** est un Add-in pour Outlook permet de simplifier l'organisation de réunions dans notre platforme (https://joona.fr) en générant automatiquement des liens Joona et ses coordonnées téléphoniques dans une invitation.
+**Joona Meet** est un Add-in pour Outlook  qui facilite l'organisation de réunions sur notre plateforme (https://joona.fr). Lors de la planification d'un événement via l'Outlook Planner, il génère automatiquement des liens de visioconférence Joona
 Lorsque vous créez un nouvel événement dans votre calendrier Outlook. Plus besoin de copier-coller des liens manuellement, l'add-in s'occupe de tout pour vous.
 
 # Installation
