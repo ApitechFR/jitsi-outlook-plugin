@@ -7,4 +7,4 @@ services:
       - "${PLUGIN_PORT}:80"
 
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
