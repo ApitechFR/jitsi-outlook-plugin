@@ -122,7 +122,6 @@ async function generateMeeting(event) {
       const currentBody = result.value || "";
 
       if (!currentBody.includes(meetingIdentifier)) {
-
         // Ajoutez `meetingDetailsHtml` seulement s'il n'est pas déjà présent
         const updatedBody = currentBody + meetingDetailsHtml;
 
@@ -138,15 +137,15 @@ async function generateMeeting(event) {
             event.completed();
           }
         );
-        
+
         //add link in location
         const joonaLink = "https://" + configs.JITSI_DOMAIN + "/" + roomName;
 
         Office.context.mailbox.item.location.setAsync(joonaLink, (result) => {
           if (result.status === Office.AsyncResultStatus.Failed) {
-              console.error("Failed to set location:", result.error.message);
+            console.error("Failed to set location:", result.error.message);
           } else {
-              console.log("Location set to HelloWork successfully!");
+            console.log("Location set to HelloWork successfully!");
           }
 
           event.completed();
