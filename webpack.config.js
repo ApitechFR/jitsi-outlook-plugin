@@ -1,11 +1,14 @@
 /* eslint-disable no-undef */
-
 const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const dotenv = require("dotenv");
+const webpack = require("webpack");
+
+dotenv.config(); // Charger les variables d'environnement depuis .env
 
 const urlDev = "https://localhost:3000/";
-const urlProd = "https://www.contoso.com/"; // CHANGE THIS TO YOUR PRODUCTION DEPLOYMENT LOCATION
+const urlProd = process.env.ADDIN_BASE_URL;
 
 async function getHttpsOptions() {
   const httpsOptions = await devCerts.getHttpsServerOptions();
@@ -14,6 +17,8 @@ async function getHttpsOptions() {
 
 module.exports = async (env, options) => {
   const dev = options.mode === "development";
+  const baseUrl = dev ? urlDev : urlProd;
+
   const config = {
     devtool: "source-map",
     entry: {
@@ -26,6 +31,10 @@ module.exports = async (env, options) => {
     },
     resolve: {
       extensions: [".ts", ".html", ".js"],
+      fallback: {
+        os: require.resolve("os-browserify/browser"),
+        crypto: false,
+      },
     },
     module: {
       rules: [
@@ -33,7 +42,7 @@ module.exports = async (env, options) => {
           test: /\.ts$/,
           exclude: /node_modules/,
           use: {
-            loader: "babel-loader"
+            loader: "babel-loader",
           },
         },
         {
@@ -64,13 +73,9 @@ module.exports = async (env, options) => {
           },
           {
             from: "manifest*.xml",
-            to: "[name]" + "[ext]",
+            to: "[name][ext]",
             transform(content) {
-              if (dev) {
-                return content;
-              } else {
-                return content.toString().replace(new RegExp(urlDev, "g"), urlProd);
-              }
+              return content.toString().replace(/{ADDIN_BASE_URL}/g, baseUrl);
             },
           },
         ],
@@ -79,6 +84,18 @@ module.exports = async (env, options) => {
         filename: "commands.html",
         template: "./src/commands/commands.html",
         chunks: ["polyfill", "commands"],
+      }),
+      new webpack.DefinePlugin({
+        "process.env": JSON.stringify({
+          DIALINNUMBER_URL: process.env.DIALINNUMBER_URL,
+          DIALINCONFCODE_URL: process.env.DIALINCONFCODE_URL,
+          ENABLE_PHONE_ACCESS: process.env.ENABLE_PHONE_ACCESS,
+          JITSI_DOMAIN: process.env.JITSI_DOMAIN,
+          PHONE_NUMBER_FORMAT: process.env.PHONE_NUMBER_FORMAT,
+          ENABLE_MODERATOR_OPTIONS: process.env.ENABLE_MODERATOR_OPTIONS,
+          TITLE_MEETING_DETAILS: process.env.TITLE_MEETING_DETAILS,
+          ADDIN_BASE_URL: process.env.ADDIN_BASE_URL,
+        }),
       }),
     ],
     devServer: {

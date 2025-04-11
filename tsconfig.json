@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "resolveJsonModule": true,
     "allowJs": true,
     "baseUrl": ".",
     "esModuleInterop": true,
@@ -9,18 +10,14 @@
     "outDir": "lib",
     "sourceMap": true,
     "target": "es5",
-    "lib": [
-      "es2015",
-      "dom"
-    ]
+    "lib": ["es2015", "dom"],
+    "moduleResolution": "node", // Ajout pour Node.js
+    "types": ["node"], // Ajout pour inclure les types Node.js
+    "skipLibCheck": true, // Facultatif, pour éviter des erreurs sur les fichiers types
+    "forceConsistentCasingInFileNames": true
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "lib",
-    "lib-amd"
-  ],
-  "ts-node": { 
-    "files": true 
+  "exclude": ["node_modules", "dist", "lib", "lib-amd"],
+  "ts-node": {
+    "files": true
   }
 }
