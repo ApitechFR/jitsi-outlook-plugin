@@ -93,6 +93,8 @@ async function getPhoneDetails(roomName) {
 async function generateMeeting(event) {
   const roomName = generateRoomName();
   const { phoneNumbers, pinCode } = await getPhoneDetails(roomName);
+  console.log("Phone numbers:", phoneNumbers);
+  console.log("PIN code:", pinCode);
 
   const meetingIdentifier = "joona-meeting-details";
   const meetingDetailsHtml = `
@@ -108,11 +110,10 @@ async function generateMeeting(event) {
         ${phoneNumbers.length > 0 ? `<span>Rejoindre par téléphone : ${phoneNumbers.join(", ")}</span><br>` : ""}
         ${pinCode ? `<span>Code secret : ${pinCode}</span><br>` : ""}
         
-        ${
-          configs.MODERATOR_OPTIONS == "true"
-            ? `<span>Pour les organisateurs : <a href="#" target="_blank">Options de réunion</a></span>`
-            : ""
-        }
+        ${configs.MODERATOR_OPTIONS == "true"
+      ? `<span>Pour les organisateurs : <a href="#" target="_blank">Options de réunion</a></span>`
+      : ""
+    }
     </div>
     <hr style="border: 1px solid #ccc; margin-top: 20px;">
   `;
