@@ -6,13 +6,29 @@
     <title>Joona Meet-dev – Accueil</title>
     <link rel="icon" href="/assets/icon-64.png" />
     <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
       body {
+        margin: 0;
+        padding: 0;
         font-family: "Segoe UI", sans-serif;
         background: linear-gradient(to right, #f9fbfd, #eef2f5);
-        margin: 0;
-        padding: 2rem;
+      }
+      .wrapper {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         text-align: center;
-        color: #333;
+        padding: 2rem;
       }
       .logo {
         width: 64px;
@@ -43,21 +59,25 @@
         background-color: #004c99;
       }
       footer {
-        margin-top: 3rem;
+        text-align: center;
+        padding: 1rem;
         font-size: 0.9rem;
         color: #777;
       }
     </style>
   </head>
   <body>
-    <img src="../../assets/icon-64.png" alt="Logo Joona" class="logo" />
-    <h1>Joona Meet-dev</h1>
-    <p>Votre complément Outlook pour générer des réunions Jitsi en un clic.</p>
-    <div class="buttons">
-      <a id="meet">Lancer une réunion</a>
-      <a href="help">Documentation</a>
+    <div class="wrapper">
+      <div class="content">
+        <img src="../../assets/icon-64.png" alt="Logo Joona" class="logo" />
+        <h1>Joona Meet</h1>
+        <p>Votre complément Outlook pour générer des réunions Jitsi en un clic.</p>
+        <div class="buttons">
+          <a id="meet">Lancer une réunion</a>
+          <a href="help">Documentation</a>
+        </div>
+      </div>
+      <footer>© 2025 Apitech – Tous droits réservés</footer>
     </div>
-
-    <footer>© 2025 Apitech – Tous droits réservés</footer>
   </body>
 </html>
