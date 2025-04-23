@@ -27,6 +27,7 @@ module.exports = async (env, options) => {
       commands: "./src/commands/commands.ts",
       index: ["./src/home/index.ts", "./src/home/index.html"],
       help: "./src/faq/help.html",
+      changelog: "./src/changelog/changelog.html",
     },
     output: {
       clean: true,
@@ -92,6 +93,11 @@ module.exports = async (env, options) => {
         template: "./src/faq/help.html",
         chunks: [],
       }),
+      new HtmlWebpackPlugin({
+        filename: "changelog.html",
+        template: "./src/changelog/changelog.html",
+        chunks: [],
+      }),
 
       new HtmlWebpackPlugin({
         filename: "commands.html",
@@ -100,13 +106,6 @@ module.exports = async (env, options) => {
       }),
       new webpack.DefinePlugin({
         "process.env": JSON.stringify({
-          //DIALINNUMBER_URL: process.env.DIALINNUMBER_URL,
-          //DIALINCONFCODE_URL: process.env.DIALINCONFCODE_URL,
-          // ENABLE_PHONE_ACCESS: process.env.ENABLE_PHONE_ACCESS,
-          //JITSI_DOMAIN: process.env.JITSI_DOMAIN,
-          // PHONE_NUMBER_FORMAT: process.env.PHONE_NUMBER_FORMAT,
-          // ENABLE_MODERATOR_OPTIONS: process.env.ENABLE_MODERATOR_OPTIONS,
-          //TITLE_MEETING_DETAILS: process.env.TITLE_MEETING_DETAILS,
           ADDIN_BASE_URL: process.env.ADDIN_BASE_URL,
         }),
       }),
