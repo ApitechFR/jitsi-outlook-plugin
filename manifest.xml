@@ -3,11 +3,11 @@
   <Id>4e8d9bdb-db81-4865-8336-c4ae31032bfd</Id>
   <Version>1.0.0.0</Version>
   <ProviderName>Joona</ProviderName>
-  <DefaultLocale>fr-FR</DefaultLocale>
+  <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Joona Meet"/>
   <Description DefaultValue="Genrator of jitsi meet "/>
   <IconUrl DefaultValue="{ADDIN_BASE_URL}/assets/icon-64.png"/>
-  <HighResolutionIconUrl DefaultValue="{/assets/icon-128.png"/>
+  <HighResolutionIconUrl DefaultValue="{ADDIN_BASE_URL}/assets/icon-128.png"/>
   <SupportUrl DefaultValue="{ADDIN_BASE_URL}/help"/>
   <AppDomains>
     <AppDomain>{ADDIN_BASE_URL}</AppDomain>
