@@ -16,9 +16,12 @@ Office.onReady(() => {
 async function load(url) {
   try {
     const response = await axios.get(url);
+    if (response.status !== 200) {
+      console.error(`{Meet Plugin} Erreur HTTP : ${response.status}`);
+    }
     return response.data;
   } catch (error) {
-    console.error("Erreur lors de la requête :", error);
+    console.error("{Meet Plugin} Erreur lors de la requête :", error);
     return null;
   }
 }
@@ -58,6 +61,7 @@ async function getPhoneDetails(roomName) {
       const phoneResult = await load(
         `${configs.dialInNumbersUrl}?conference=${roomName}@conference.${configs.JITSI_DOMAIN}`
       );
+      console.log("{Meet Plugin} Phone result:", phoneResult);
       if (phoneResult && phoneResult.numbers) {
         Object.keys(phoneResult.numbers).forEach((key) => {
           phoneResult.numbers[key].forEach((number) => {
@@ -68,18 +72,19 @@ async function getPhoneDetails(roomName) {
         });
       }
     } catch (error) {
-      console.error("Erreur lors de la récupération des numéros de téléphone :", error);
+      console.error("{Meet Plugin} Erreur lors de la récupération des numéros de téléphone :", error);
     }
 
     try {
       const pinResult = await load(
         `${configs.dialInConfCodeUrl}?conference=${roomName}@conference.${configs.JITSI_DOMAIN}`
       );
+      console.log("{Meet Plugin} PIN result:", pinResult);
       if (pinResult && pinResult.id) {
         pinCode = pinResult.id;
       }
     } catch (error) {
-      console.error("Erreur lors de la récupération du code PIN :", error);
+      console.error("{Meet Plugin} Erreur lors de la récupération du code PIN :", error);
     }
   }
 
@@ -93,8 +98,8 @@ async function getPhoneDetails(roomName) {
 async function generateMeeting(event) {
   const roomName = generateRoomName();
   const { phoneNumbers, pinCode } = await getPhoneDetails(roomName);
-  console.log("Phone numbers:", phoneNumbers);
-  console.log("PIN code:", pinCode);
+  console.log("{Meet Plugin} Phone numbers:", phoneNumbers);
+  console.log("{Meet Plugin} PIN code:", pinCode);
 
   const meetingIdentifier = "joona-meeting-details";
   const meetingDetailsHtml = `
@@ -110,9 +115,10 @@ async function generateMeeting(event) {
         ${phoneNumbers.length > 0 ? `<span>Rejoindre par téléphone : ${phoneNumbers.join(", ")}</span><br>` : ""}
         ${pinCode ? `<span>Code secret : ${pinCode}</span><br>` : ""}
         
-        ${configs.MODERATOR_OPTIONS == "true"
-      ? `<span>Pour les organisateurs : <a href="#" target="_blank">Options de réunion</a></span>`
-      : ""
+    ${
+      configs.MODERATOR_OPTIONS == "true"
+        ? `<span>Pour les organisateurs : <a href="#" target="_blank">Options de réunion</a></span>`
+        : ""
     }
     </div>
     <hr style="border: 1px solid #ccc; margin-top: 20px;">
@@ -131,9 +137,9 @@ async function generateMeeting(event) {
           { coercionType: Office.CoercionType.Html },
           (setResult) => {
             if (setResult.status === Office.AsyncResultStatus.Succeeded) {
-              console.log("Détails de la réunion ajoutés avec succès !");
+              console.log("{Meet Plugin} Détails de la réunion ajoutés avec succès !");
             } else {
-              console.error("Erreur lors de l'ajout des détails de la réunion :", setResult.error);
+              console.error("{Meet Plugin} Erreur lors de l'ajout des détails de la réunion :", setResult.error);
             }
             event.completed();
           }
@@ -144,19 +150,19 @@ async function generateMeeting(event) {
 
         Office.context.mailbox.item.location.setAsync(joonaLink, (result) => {
           if (result.status === Office.AsyncResultStatus.Failed) {
-            console.error("Failed to set location:", result.error.message);
+            console.error("{Meet Plugin} Failed to set location:", result.error.message);
           } else {
-            console.log("Location set to HelloWork successfully!");
+            console.log("{Meet Plugin} Location set to HelloWork successfully!");
           }
 
           event.completed();
         });
       } else {
-        console.log("Les détails de la réunion sont déjà présents dans le corps.");
+        console.log("{Meet Plugin} Les détails de la réunion sont déjà présents dans le corps.");
         event.completed();
       }
     } else {
-      console.error("Erreur lors de la récupération du contenu actuel :", result.error);
+      console.error("{Meet Plugin} Erreur lors de la récupération du contenu actuel :", result.error);
       event.completed();
     }
   });

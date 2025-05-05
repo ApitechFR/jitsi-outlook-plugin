@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const version = document.getElementById("version") as HTMLSpanElement;
   if (version) {
     version.innerText = `v${APP_VERSION}`;
-    console.log("Version: ", APP_VERSION);
+
+    console.info({ "Infos: Vous etes sur la plateforme": baseUrl, Version: APP_VERSION });
   }
 });
