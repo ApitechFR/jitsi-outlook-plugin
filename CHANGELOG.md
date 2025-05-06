@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/ApitechFR/jitsi-outlook-plugin/compare/v1.1.3...v1.1.4) (2025-05-06)
+
+
+### Bug Fixes
+
+* Correct URL formatting in help documentation and update nginx configuration ([e9cc064](https://github.com/ApitechFR/jitsi-outlook-plugin/commit/e9cc0647d2686d2aff8919277b15af79b4e332c7))
+
 ## [1.1.3](https://github.com/ApitechFR/jitsi-outlook-plugin/compare/v1.1.2...v1.1.3) (2025-05-06)
 
 
