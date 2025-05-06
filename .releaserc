@@ -1,5 +1,5 @@
 {
-
+  "repositoryUrl": "https://github.com/ApitechFR/jitsi-outlook-plugin.git",
   "branches": ["main", "release"],
   "plugins": [
     "@semantic-release/commit-analyzer",
