@@ -22,6 +22,8 @@ module.exports = {
       {
         assets: ["meet_joona.tar.gz"],
         message: "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
+        failComment: false,
+        labels: ["release"],
       },
     ],
   ],
