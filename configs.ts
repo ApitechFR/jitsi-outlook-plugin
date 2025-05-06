@@ -1,7 +1,7 @@
 import vars from "./vars.json";
-import { version } from "./package.json";
+import pkg from "./package.json";
 
-export const APP_VERSION = version;
+export const APP_VERSION = pkg.version;
 
 export const configs = {
   dialInNumbersUrl: vars.DIALINNUMBER_URL,
