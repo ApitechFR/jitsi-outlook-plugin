@@ -91,7 +91,7 @@ module.exports = async (env, options) => {
       new HtmlWebpackPlugin({
         filename: "help.html",
         template: "./src/faq/help.html",
-        chunks: [],
+        chunks: ["polyfill", "help"],
       }),
       new HtmlWebpackPlugin({
         filename: "changelog.html",
