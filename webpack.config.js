@@ -26,7 +26,7 @@ module.exports = async (env, options) => {
       taskpane: ["./src/taskpane/taskpane.ts", "./src/taskpane/taskpane.html"],
       commands: "./src/commands/commands.ts",
       index: ["./src/home/index.ts", "./src/home/index.html"],
-      help: "./src/faq/help.html",
+      help: ["./src/faq/help.ts", "./src/faq/help.html"],
       changelog: "./src/changelog/changelog.html",
     },
     output: {

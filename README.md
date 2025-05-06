@@ -43,7 +43,7 @@ ADDIN_BASE_URL=https://dev.joona.fr/plugin-outlook
 Copier le fichier example.vars.json et le remplir :
 
 ```bash
-cp .env.exemple .env
+cp example.vars.json vars.json
 ```
 Exemple :
 ```bash
