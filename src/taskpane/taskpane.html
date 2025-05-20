@@ -2,23 +2,29 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Joona Debug Panel</title>
+    <title>Joona Debug</title>
     <script src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
-    <link rel="stylesheet" href="taskpane.css" />
+    <script type="module" src="taskpane.ts"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 1rem;
+      }
+      button {
+        margin: 4px;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+      }
+      pre {
+        background: #f0f0f0;
+        padding: 1rem;
+        overflow-x: auto;
+      }
+    </style>
   </head>
   <body>
-    <div class="container" id="debug-container">
-      <h1>🧪 Debug Joona</h1>
-
-      <button id="refresh">🔄 Rafraîchir les logs</button>
-      <button id="clear">🗑️ Vider les logs</button>
-      <button id="copy">📋 Copier</button>
-
-      <h2>📋 Journaux :</h2>
-      <pre id="debug-out">Chargement...</pre>
+    <div id="debug-container">
+      <p>Chargement…</p>
     </div>
-
-    <script type="module" src="taskpane.ts"></script>
   </body>
 </html>

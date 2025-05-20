@@ -153,11 +153,10 @@ async function generateMeeting(event: Office.AddinCommands.Event) {
         </div>
         ${phoneNumbers.length ? `<div>Par téléphone : ${phoneNumbers.join(", ")}</div>` : ""}
         ${pinCode ? `<div>Code secret : ${pinCode}</div>` : ""}
-        ${
-          configs.MODERATOR_OPTIONS === "true"
-            ? `<div>Pour les organisateurs : <a href="#">Options de réunion</a></div>`
-            : ""
-        }
+        ${configs.MODERATOR_OPTIONS === "true"
+        ? `<div>Pour les organisateurs : <a href="#">Options de réunion</a></div>`
+        : ""
+      }
       </div>
       <hr style="border: 1px solid #ccc; margin-top: 20px;">
     `;
@@ -213,6 +212,6 @@ async function generateMeeting(event: Office.AddinCommands.Event) {
     event.completed();
   }
 }
-
+export { generateMeeting };
 // Associer au bouton dans le manifest
 Office.actions.associate("generateMeeting", generateMeeting);
