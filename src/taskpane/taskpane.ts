@@ -1,28 +1,34 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
- * See LICENSE in the project root for license information.
- */
+import { configs } from "../../configs";
 
-/* global Office */
+const debugOut = document.getElementById("debug-out") as HTMLPreElement;
+const container = document.getElementById("debug-container") as HTMLDivElement;
 
-Office.onReady((info) => {
-  if (info.host === Office.HostType.Outlook) {
-    document.getElementById("sideload-msg").style.display = "none";
-    document.getElementById("app-body").style.display = "flex";
-    document.getElementById("run").onclick = run;
+Office.onReady(async () => {
+  if (!configs.debug) {
+    if (container) {
+      container.innerHTML = "<p style='padding:1rem; color:gray;'>🛑 Le mode debug est désactivé.</p>";
+    }
+    return;
   }
+
+  document.getElementById("refresh")?.addEventListener("click", loadLogs);
+  document.getElementById("clear")?.addEventListener("click", clearLogs);
+  document.getElementById("copy")?.addEventListener("click", copyLogs);
+
+  await loadLogs();
 });
 
-export async function run() {
-  /**
-   * Insert your Outlook code here
-   */
+async function loadLogs() {
+  const logs: string[] = (await OfficeRuntime.storage.getItem("debugLogs")) || [];
+  debugOut.innerText = logs.length ? logs.join("\n") : "🟡 Aucun log disponible.";
+}
 
-  const item = Office.context.mailbox.item;
-  let insertAt = document.getElementById("item-subject");
-  let label = document.createElement("b").appendChild(document.createTextNode("Subject: "));
-  insertAt.appendChild(label);
-  insertAt.appendChild(document.createElement("br"));
-  insertAt.appendChild(document.createTextNode(item.subject));
-  insertAt.appendChild(document.createElement("br"));
+async function clearLogs() {
+  await OfficeRuntime.storage.setItem("debugLogs", []);
+  debugOut.innerText = "🗑️ Logs effacés.";
+}
+
+async function copyLogs() {
+  await navigator.clipboard.writeText(debugOut.innerText);
+  alert("📋 Logs copiés !");
 }
