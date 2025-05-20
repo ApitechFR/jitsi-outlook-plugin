@@ -5,15 +5,13 @@ import axios from "axios";
 /* global Office */
 
 Office.onReady(() => {
-  // If needed, Office.js is ready to be called.
+  console.log("{Meet Plugin} Office.js est prêt");
 });
 
 /**
- * Fonction utilitaire pour effectuer une requête HTTP et renvoyer la réponse.
- * @param {string} url - URL à interroger.
- * @returns {Promise<string|null>} - Réponse sous forme de texte ou null en cas d'échec.
+ * Requête HTTP simple
  */
-async function load(url) {
+async function load(url: string): Promise<any> {
   try {
     const response = await axios.get(url);
     if (response.status !== 200) {
@@ -25,35 +23,30 @@ async function load(url) {
     return null;
   }
 }
+
 /**
- * Shows a notification when the add-in command is executed.
- * @param event
+ * Insère un bloc de test pour valider que l’injection est possible
  */
-function action(event: Office.AddinCommands.Event) {
-  const message: Office.NotificationMessageDetails = {
-    type: Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
-    message: "Performed action.",
-    icon: "Icon.80x80",
-    persistent: true,
-  };
-
-  // Show a notification message.
-  Office.context.mailbox.item.notificationMessages.replaceAsync("ActionPerformanceNotification", message);
-
-  // Be sure to indicate when the add-in command function is complete.
-  event.completed();
+async function insertTestHtml(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const html = `<p style="color: green"> Test d’insertion réussi !</p>`;
+    Office.context.mailbox.item.body.setAsync(html, { coercionType: Office.CoercionType.Html }, (result) => {
+      if (result.status === Office.AsyncResultStatus.Succeeded) {
+        console.log("{Meet Plugin} Test HTML ajouté !");
+        resolve();
+      } else {
+        console.error("{Meet Plugin} Erreur d’insertion HTML :", result.error);
+        reject(result.error);
+      }
+    });
+  });
 }
 
-// Register the function with Office.
-Office.actions.associate("action", action);
-
 /**
- * Récupère les numéros de téléphone et le code PIN pour la conférence.
- * @param {string} roomName - Nom de la salle.
- * @returns {Promise<object>} - Contient les numéros de téléphone et le code PIN.
+ * Génère les numéros de téléphone et le code PIN
  */
-async function getPhoneDetails(roomName) {
-  const phoneNumbers = [];
+async function getPhoneDetails(roomName: string): Promise<{ phoneNumbers: string[]; pinCode: string }> {
+  const phoneNumbers: string[] = [];
   let pinCode = "";
 
   if (configs.ENABLE_PHONE_ACCESS) {
@@ -62,9 +55,10 @@ async function getPhoneDetails(roomName) {
         `${configs.dialInNumbersUrl}?conference=${roomName}@conference.${configs.JITSI_DOMAIN}`
       );
       console.log("{Meet Plugin} Phone result:", phoneResult);
-      if (phoneResult && phoneResult.numbers) {
-        Object.keys(phoneResult.numbers).forEach((key) => {
-          phoneResult.numbers[key].forEach((number) => {
+
+      if (phoneResult?.numbers) {
+        Object.entries(phoneResult.numbers).forEach(([key, values]: [string, any]) => {
+          values.forEach((number: string) => {
             phoneNumbers.push(
               configs.PHONE_NUMBER_FORMAT.replace("%phone_number%", number).replace("%phone_country%", key)
             );
@@ -72,7 +66,7 @@ async function getPhoneDetails(roomName) {
         });
       }
     } catch (error) {
-      console.error("{Meet Plugin} Erreur lors de la récupération des numéros de téléphone :", error);
+      console.error("{Meet Plugin} Erreur numéros téléphone :", error);
     }
 
     try {
@@ -80,11 +74,12 @@ async function getPhoneDetails(roomName) {
         `${configs.dialInConfCodeUrl}?conference=${roomName}@conference.${configs.JITSI_DOMAIN}`
       );
       console.log("{Meet Plugin} PIN result:", pinResult);
-      if (pinResult && pinResult.id) {
+
+      if (pinResult?.id) {
         pinCode = pinResult.id;
       }
     } catch (error) {
-      console.error("{Meet Plugin} Erreur lors de la récupération du code PIN :", error);
+      console.error("{Meet Plugin} Erreur PIN code :", error);
     }
   }
 
@@ -92,81 +87,107 @@ async function getPhoneDetails(roomName) {
 }
 
 /**
- * Génère les détails de la réunion et les ajoute au corps de l'invitation.
- * @param {Office.AddinCommands.Event} event - Événement de la commande Office.
+ * Fonction principale
  */
-async function generateMeeting(event) {
-  const roomName = generateRoomName();
-  const { phoneNumbers, pinCode } = await getPhoneDetails(roomName);
-  console.log("{Meet Plugin} Phone numbers:", phoneNumbers);
-  console.log("{Meet Plugin} PIN code:", pinCode);
+async function generateMeeting(event: Office.AddinCommands.Event) {
+  console.log("{Meet Plugin} Lancement de la génération de réunion");
 
-  const meetingIdentifier = "joona-meeting-details";
-  const meetingDetailsHtml = `
-    <hr style="border: 1px solid #ccc; margin-top: 20px;">
-    <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;" id="${meetingIdentifier}">
-        <strong>${configs.TITLE_MEETING_DETAILS}</strong><br>
-        <div style="margin-bottom:6px">
-        <a style="font-size:20px; font-weight:600; text-decoration:underline; color:#5B5FC7; cursor:pointer "
-          data-auth="NotApplicable" rel="noreferrer noopener" href="https://${configs.JITSI_DOMAIN}/${roomName}"
-          target="_blank">
-          Rejoignez la réunion maintenant</a><br>
-        </div>
-        ${phoneNumbers.length > 0 ? `<span>Rejoindre par téléphone : ${phoneNumbers.join(", ")}</span><br>` : ""}
-        ${pinCode ? `<span>Code secret : ${pinCode}</span><br>` : ""}
-        
-    ${
-      configs.MODERATOR_OPTIONS == "true"
-        ? `<span>Pour les organisateurs : <a href="#" target="_blank">Options de réunion</a></span>`
-        : ""
+  if (!Office.context.mailbox.item?.body?.setAsync || !Office.context.mailbox.item?.body?.getAsync) {
+    console.warn("{Meet Plugin} L’environnement actuel ne permet pas la modification du corps.");
+    Office.context.mailbox.item.notificationMessages.addAsync("unsupported", {
+      type: "errorMessage",
+      message: "Impossible d’insérer les détails. Essayez en ouvrant l’invitation en plein écran.",
+    });
+    event.completed();
+    return;
+  }
+
+  Office.context.mailbox.item.body.setAsync(
+    `<p style="color: blue;"> Debug: Script exécuté à ${new Date().toLocaleString()}</p>`,
+    { coercionType: Office.CoercionType.Html },
+    (res) => {
+      if (res.status === Office.AsyncResultStatus.Succeeded) {
+        console.log("{Meet Plugin}  Debug HTML injecté.");
+      } else {
+        console.error("{Meet Plugin}  Échec injection debug HTML :", res.error);
+      }
     }
-    </div>
-    <hr style="border: 1px solid #ccc; margin-top: 20px;">
-  `;
+  );
 
-  Office.context.mailbox.item.body.getAsync(Office.CoercionType.Html, (result) => {
-    if (result.status === Office.AsyncResultStatus.Succeeded) {
+  try {
+    // Insertion de test (à commenter si validé)
+    await insertTestHtml();
+
+    const roomName = generateRoomName();
+    const { phoneNumbers, pinCode } = await getPhoneDetails(roomName);
+    const meetingIdentifier = "joona-meeting-details";
+
+    const meetingDetailsHtml = `
+      <hr style="border: 1px solid #ccc; margin-top: 20px;">
+      <div id="${meetingIdentifier}" style="font-family: Arial; font-size: 14px;">
+        <strong>${configs.TITLE_MEETING_DETAILS}</strong><br/>
+        <div style="margin-bottom:6px">
+          <a href="https://${configs.JITSI_DOMAIN}/${roomName}" target="_blank"
+             style="font-size: 20px; font-weight: 600; text-decoration: underline; color: #5B5FC7;">
+             Rejoignez la réunion maintenant
+          </a><br/>
+        </div>
+        ${phoneNumbers.length ? `<div>Par téléphone : ${phoneNumbers.join(", ")}</div>` : ""}
+        ${pinCode ? `<div>Code secret : ${pinCode}</div>` : ""}
+        ${configs.MODERATOR_OPTIONS === "true"
+        ? `<div>Pour les organisateurs : <a href="#">Options de réunion</a></div>`
+        : ""
+      }
+      </div>
+      <hr style="border: 1px solid #ccc; margin-top: 20px;">
+    `;
+
+    // Récupérer le contenu actuel du corps
+    Office.context.mailbox.item.body.getAsync(Office.CoercionType.Html, (result) => {
+      if (result.status !== Office.AsyncResultStatus.Succeeded) {
+        console.error("{Meet Plugin} Erreur récupération du corps :", result.error);
+        event.completed();
+        return;
+      }
+
       const currentBody = result.value || "";
 
-      if (!currentBody.includes(meetingIdentifier)) {
-        // Ajoutez `meetingDetailsHtml` seulement s'il n'est pas déjà présent
-        const updatedBody = currentBody + meetingDetailsHtml;
+      if (currentBody.includes(meetingIdentifier)) {
+        console.log("{Meet Plugin} Détails déjà présents, insertion ignorée.");
+        event.completed();
+        return;
+      }
 
-        Office.context.mailbox.item.body.setAsync(
-          updatedBody,
-          { coercionType: Office.CoercionType.Html },
-          (setResult) => {
-            if (setResult.status === Office.AsyncResultStatus.Succeeded) {
-              console.log("{Meet Plugin} Détails de la réunion ajoutés avec succès !");
-            } else {
-              console.error("{Meet Plugin} Erreur lors de l'ajout des détails de la réunion :", setResult.error);
-            }
-            event.completed();
-          }
-        );
+      const updatedBody = currentBody + meetingDetailsHtml;
 
-        //add link in location
-        const joonaLink = "https://" + configs.JITSI_DOMAIN + "/" + roomName;
+      const bodyPromise = new Promise<void>((resolve, reject) => {
+        Office.context.mailbox.item.body.setAsync(updatedBody, { coercionType: Office.CoercionType.Html }, (res) => {
+          res.status === Office.AsyncResultStatus.Succeeded ? resolve() : reject(res.error);
+        });
+      });
 
-        Office.context.mailbox.item.location.setAsync(joonaLink, (result) => {
-          if (result.status === Office.AsyncResultStatus.Failed) {
-            console.error("{Meet Plugin} Failed to set location:", result.error.message);
-          } else {
-            console.log("{Meet Plugin} Location set to HelloWork successfully!");
-          }
+      const locationPromise = new Promise<void>((resolve, reject) => {
+        const joonaLink = `https://${configs.JITSI_DOMAIN}/${roomName}`;
+        Office.context.mailbox.item.location.setAsync(joonaLink, (res) => {
+          res.status === Office.AsyncResultStatus.Succeeded ? resolve() : reject(res.error);
+        });
+      });
 
+      Promise.all([bodyPromise, locationPromise])
+        .then(() => {
+          console.log("{Meet Plugin} Réunion ajoutée avec succès.");
+          event.completed();
+        })
+        .catch((err) => {
+          console.error("{Meet Plugin} Erreur lors de l’injection :", err);
           event.completed();
         });
-      } else {
-        console.log("{Meet Plugin} Les détails de la réunion sont déjà présents dans le corps.");
-        event.completed();
-      }
-    } else {
-      console.error("{Meet Plugin} Erreur lors de la récupération du contenu actuel :", result.error);
-      event.completed();
-    }
-  });
+    });
+  } catch (err) {
+    console.error("{Meet Plugin} Erreur inattendue :", err);
+    event.completed();
+  }
 }
 
-// Associer la commande à votre bouton dans l'add-in
+// Associer au bouton dans le manifest
 Office.actions.associate("generateMeeting", generateMeeting);
