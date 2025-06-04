@@ -1,6 +1,7 @@
 import { configs } from "../../configs";
 import { generateRoomName } from "../helpers/roomNameGenerator";
-import axios from "axios";
+//import axios from "axios";
+//import axios from "axios";
 
 /* global Office */
 
@@ -13,18 +14,18 @@ Office.onReady(() => {
  * @param {string} url - URL à interroger.
  * @returns {Promise<string|null>} - Réponse sous forme de texte ou null en cas d'échec.
  */
-async function load(url) {
-  try {
-    const response = await axios.get(url);
-    if (response.status !== 200) {
-      console.error(`{Meet Plugin} Erreur HTTP : ${response.status}`);
-    }
-    return response.data;
-  } catch (error) {
-    console.error("{Meet Plugin} Erreur lors de la requête :", error);
-    return null;
-  }
-}
+// async function load(url) {
+//   try {
+//     const response = await axios.get(url);
+//     if (response.status !== 200) {
+//       console.error(`{Meet Plugin} Erreur HTTP : ${response.status}`);
+//     }
+//     return response.data;
+//   } catch (error) {
+//     console.error("{Meet Plugin} Erreur lors de la requête :", error);
+//     return null;
+//   }
+// }
 /**
  * Shows a notification when the add-in command is executed.
  * @param event
@@ -52,44 +53,44 @@ Office.actions.associate("action", action);
  * @param {string} roomName - Nom de la salle.
  * @returns {Promise<object>} - Contient les numéros de téléphone et le code PIN.
  */
-async function getPhoneDetails(roomName) {
-  const phoneNumbers = [];
-  let pinCode = "";
+// async function getPhoneDetails(roomName) {
+//   const phoneNumbers = [];
+//   let pinCode = "";
 
-  if (configs.ENABLE_PHONE_ACCESS) {
-    try {
-      const phoneResult = await load(
-        `${configs.dialInNumbersUrl}?conference=${roomName}@conference.${configs.JITSI_DOMAIN}`
-      );
-      console.log("{Meet Plugin} Phone result:", phoneResult);
-      if (phoneResult && phoneResult.numbers) {
-        Object.keys(phoneResult.numbers).forEach((key) => {
-          phoneResult.numbers[key].forEach((number) => {
-            phoneNumbers.push(
-              configs.PHONE_NUMBER_FORMAT.replace("%phone_number%", number).replace("%phone_country%", key)
-            );
-          });
-        });
-      }
-    } catch (error) {
-      console.error("{Meet Plugin} Erreur lors de la récupération des numéros de téléphone :", error);
-    }
+//   if (configs.ENABLE_PHONE_ACCESS) {
+//     try {
+//       const phoneResult = await load(
+//         `${configs.dialInNumbersUrl}?conference=${roomName}@conference.${configs.JITSI_DOMAIN}`
+//       );
+//       console.log("{Meet Plugin} Phone result:", phoneResult);
+//       if (phoneResult && phoneResult.numbers) {
+//         Object.keys(phoneResult.numbers).forEach((key) => {
+//           phoneResult.numbers[key].forEach((number) => {
+//             phoneNumbers.push(
+//               configs.PHONE_NUMBER_FORMAT.replace("%phone_number%", number).replace("%phone_country%", key)
+//             );
+//           });
+//         });
+//       }
+//     } catch (error) {
+//       console.error("{Meet Plugin} Erreur lors de la récupération des numéros de téléphone :", error);
+//     }
 
-    try {
-      const pinResult = await load(
-        `${configs.dialInConfCodeUrl}?conference=${roomName}@conference.${configs.JITSI_DOMAIN}`
-      );
-      console.log("{Meet Plugin} PIN result:", pinResult);
-      if (pinResult && pinResult.id) {
-        pinCode = pinResult.id;
-      }
-    } catch (error) {
-      console.error("{Meet Plugin} Erreur lors de la récupération du code PIN :", error);
-    }
-  }
+//     try {
+//       const pinResult = await load(
+//         `${configs.dialInConfCodeUrl}?conference=${roomName}@conference.${configs.JITSI_DOMAIN}`
+//       );
+//       console.log("{Meet Plugin} PIN result:", pinResult);
+//       if (pinResult && pinResult.id) {
+//         pinCode = pinResult.id;
+//       }
+//     } catch (error) {
+//       console.error("{Meet Plugin} Erreur lors de la récupération du code PIN :", error);
+//     }
+//   }
 
-  return { phoneNumbers, pinCode };
-}
+//   return { phoneNumbers, pinCode };
+// }
 
 /**
  * Génère les détails de la réunion et les ajoute au corps de l'invitation.
@@ -97,9 +98,7 @@ async function getPhoneDetails(roomName) {
  */
 async function generateMeeting(event) {
   const roomName = generateRoomName();
-  const { phoneNumbers, pinCode } = await getPhoneDetails(roomName);
-  console.log("{Meet Plugin} Phone numbers:", phoneNumbers);
-  console.log("{Meet Plugin} PIN code:", pinCode);
+  //const { phoneNumbers, pinCode } = await getPhoneDetails(roomName);
 
   const meetingIdentifier = "joona-meeting-details";
   const meetingDetailsHtml = `
@@ -112,14 +111,7 @@ async function generateMeeting(event) {
           target="_blank">
           Rejoignez la réunion maintenant</a><br>
         </div>
-        ${phoneNumbers.length > 0 ? `<span>Rejoindre par téléphone : ${phoneNumbers.join(", ")}</span><br>` : ""}
-        ${pinCode ? `<span>Code secret : ${pinCode}</span><br>` : ""}
-        
-    ${
-      configs.MODERATOR_OPTIONS == "true"
-        ? `<span>Pour les organisateurs : <a href="#" target="_blank">Options de réunion</a></span>`
-        : ""
-    }
+    
     </div>
     <hr style="border: 1px solid #ccc; margin-top: 20px;">
   `;
