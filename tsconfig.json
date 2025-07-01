@@ -12,7 +12,7 @@
     "target": "es5",
     "lib": ["es2015", "dom"],
     "moduleResolution": "node", // Ajout pour Node.js
-    "types": ["node","office-js"], // Ajout pour inclure les types Node.js
+    "types": ["node", "office-js", "jest"], // Ajout pour inclure les types Node.js et Jest
     "skipLibCheck": true, // Facultatif, pour éviter des erreurs sur les fichiers types
     "forceConsistentCasingInFileNames": true
   },
