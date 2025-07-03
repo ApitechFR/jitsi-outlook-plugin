@@ -32,13 +32,28 @@ function randomElementFlush<T>(arr: T[]): T {
  * @returns A room name.
  */
 export function generateRoomName(): string {
-  const place = randomElementFlush(roomData.PLACE);
-  const noun = randomElementFlush(roomData.PLURALNOUN);
-  const verb = randomElementFlush(roomData.VERB);
-  const AlphanumString = randomAlphanumString(randomInt(7, 10));
+  const configsModule = require("../../configs");
+  const configs = configsModule.configs || configsModule;
+  const prefix = configs.room_name_prefix ?? "alea_name";
+  const totalSize = configs.room_name_size ?? 30;
 
-  return `${place}${noun}${verb}-${AlphanumString}`;
+  // Mode alea_name = nom structuré
+  if (prefix === "alea_name") {
+    const place = randomElementFlush(roomData.PLACE);
+    const noun = randomElementFlush(roomData.PLURALNOUN);
+    const verb = randomElementFlush(roomData.VERB);
+    const alphanum = randomAlphanumString(randomInt(7, 10));
+    return `${place}${noun}${verb}-${alphanum}`;
+  }
+
+  // Sinon : calculer la longueur restante
+  const finalPrefix = prefix.trim();
+  let base = finalPrefix;
+  if (finalPrefix.length > 0) {
+    base += "-";
+  }
+  const suffixLength = Math.max(totalSize - base.length, 0);
+  const suffix = randomAlphanumString(suffixLength);
+
+  return `${base}${suffix}`;
 }
-
-// Example usage
-//console.log(generateRoomName());

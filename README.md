@@ -55,9 +55,67 @@ Exemple :
   "PHONE_NUMBER_FORMAT": "%phone_number%",
   "ENABLE_MODERATOR_OPTIONS": "false",
   "TITLE_MEETING_DETAILS": "Exemple_test"
+  "ROOM_NAME_PREFIX":" ",
+  "ROOM_NAME_LENGTH":10
 }
 
 ```
+## Variables de configuration — Génération des noms de salle & accès téléphonique
+
+
+
+---
+
+**`DIALINNUMBER_URL`** (`string`)  
+URL de l’API Voxify qui fournit le numéro de téléphone pour rejoindre une réunion par appel (dial-in).
+
+---
+
+**`DIALINCONF_CODEURL`** (`string`)  
+URL de l’API Voxify qui fournit le **code de conférence** pour l’accès téléphonique.
+
+---
+
+**`ENABLED_PHONE_ACCESS`** (`boolean` — `"true"` / `"false"`)  
+Active ou désactive l’accès à la réunion par téléphone.  
+Si `false`, aucun numéro de téléphone ne sera proposé aux participants.
+
+---
+
+**`JITSI_DOMAIN`** (`string`)  
+Domaine principal du serveur Jitsi utilisé pour générer les liens de conférence.  
+Exemple : `joona.fr`
+
+---
+
+**`PHONE_NUMBER_FORMAT`** (`string`)  
+Modèle pour formater l’affichage du numéro de téléphone.  
+Peut contenir le placeholder `%phone_number%` pour insertion dynamique.  
+Exemple : `+33 %phone_number%`
+
+---
+
+**`TITLE_MEETING_DETAILS`** (`string`)  
+Titre affiché au-dessus des détails de la réunion (numéro dial-in, code de conférence, lien).
+
+---
+
+**`ROOM_NAME_PREFIX`** (`string`)  
+Préfixe ajouté au nom de salle généré automatiquement.  
+- `alea_name` : génère un nom structuré lisible, par exemple `ChapelleVictorHugoAnalyser-5HJTXDLuHD`  
+- Texte personnalisé : préfixe fixe, par exemple `"Salle"`  
+- Vide : génère un ID alphanumérique pur.  
+Valeurs possibles : `"alea_name"`, `"Salle"` ou `""`.
+
+---
+
+**`ROOM_NAME_LENGTH`** (`number`)  
+Longueur totale du nom de salle généré (préfixe + séparateur + suffixe).  
+💡 Ignoré si `ROOM_NAME_PREFIX` vaut `alea_name`.  
+Exemple : `10`
+
+
+
 
 ##   Build & Lancement avec Docker 🧱
 
